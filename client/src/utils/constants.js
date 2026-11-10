@@ -1,5 +1,7 @@
-// Backend API base URL, including /api (set VITE_BASE_URL in client/.env).
-export const BASE_URL = (import.meta.env.VITE_BASE_URL || 'http://localhost:5000/api').replace(/\/$/, '');
+// Backend API base URL (VITE_BASE_URL). Adds /api if it's missing, so both
+// https://my-api.vercel.app and https://my-api.vercel.app/api work.
+const rawBaseUrl = (import.meta.env.VITE_BASE_URL || 'http://localhost:5000').replace(/\/+$/, '');
+export const BASE_URL = rawBaseUrl.endsWith('/api') ? rawBaseUrl : `${rawBaseUrl}/api`;
 
 export const TEST_CUSTOMERS = [];
 

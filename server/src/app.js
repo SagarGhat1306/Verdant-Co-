@@ -7,6 +7,13 @@ import { apiLimiter } from './middleware/rateLimiters.js';
 import { apiRouter } from './routes/index.js';
 import { webhookRouter } from './routes/webhook.routes.js';
 
+// Frontends allowed to call the API: the deployed app, local dev, plus anything in CLIENT_URL.
+const ALLOWED_ORIGINS = new Set([
+  'https://verdant-co-one.vercel.app',
+  'http://localhost:5173',
+  ...env.clientUrls,
+]);
+
 export function createApp() {
   const app = express();
 
@@ -20,7 +27,7 @@ export function createApp() {
       origin(origin, callback) {
         // No Origin = curl, Postman or the chat system. Those are protected by
         // the signature or JWT, not CORS.
-        if (!origin || env.clientUrls.includes(origin)) return callback(null, true);
+        if (!origin || ALLOWED_ORIGINS.has(origin)) return callback(null, true);
         return callback(null, false);
       },
       methods: ['GET', 'POST'],
