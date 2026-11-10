@@ -36,7 +36,7 @@ export function AgentDashboard() {
     loadList();
   }, [loadList]);
 
-  usePolling(loadList, 10000);
+  usePolling(loadList, 5000);
 
   return (
     <div className="mx-auto flex h-full max-w-7xl md:p-4">

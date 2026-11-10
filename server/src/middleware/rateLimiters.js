@@ -11,7 +11,7 @@ function limiter(windowMs, limit, message) {
 }
 
 // General limit for everything under /api.
-export const apiLimiter = limiter(15 * 60 * 1000, 500, 'Too many requests. Please try again later.');
+export const apiLimiter = limiter(15 * 60 * 1000, 2000,'Too many requests. Please try again later.');
 
 // Slows down password guessing.
 export const loginLimiter = limiter(15 * 60 * 1000, 10, 'Too many login attempts. Please wait and try again.');

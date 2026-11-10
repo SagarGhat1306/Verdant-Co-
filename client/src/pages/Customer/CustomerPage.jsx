@@ -70,7 +70,7 @@ export function CustomerPage() {
   }, [loadConversation]);
 
   // Pick up new agent replies while the page is open.
-  usePolling(() => loadConversation({ silent: true }), 8000, Boolean(customer));
+  usePolling(() => loadConversation({ silent: true }), 3000, Boolean(customer));
 
   async function handleSelect({ name, phone }) {
     setSelecting(true);

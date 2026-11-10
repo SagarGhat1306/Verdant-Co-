@@ -48,7 +48,7 @@ export function ConversationDetail({ conversationId, onChanged }) {
   }, [load]);
 
   const generating = conversation?.messages.some((m) => m.draft?.state === 'GENERATING');
-  usePolling(() => load({ silent: true }), generating ? 4000 : 10000);
+  usePolling(() => load({ silent: true }), generating ? 2000 : 5000);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: 'end' });
@@ -56,9 +56,10 @@ export function ConversationDetail({ conversationId, onChanged }) {
 
   async function handleApprove(draftId, text) {
     setSuccess('');
+    let reply;
     try {
-      await axios.post(`${BASE_URL}/drafts/${draftId}/approve`, { text }, authHeaders);
-      setSuccess('Reply approved. The customer can now see it.');
+      const res = await axios.post(`${BASE_URL}/drafts/${draftId}/approve`, { text }, authHeaders);
+      reply = res.data.data.reply;
     } catch (err) {
       // Someone else got there first. Refresh to show what really happened.
       if (getErrorCode(err) === 'ALREADY_APPROVED') {
@@ -68,7 +69,23 @@ export function ConversationDetail({ conversationId, onChanged }) {
       }
       throw new Error(getErrorMessage(err)); // shown in the draft box
     }
-    await load({ silent: true });
+
+    // Show the reply right away instead of waiting for a full reload.
+    setConversation((current) => ({
+      ...current,
+      messages: [
+        ...current.messages.map((m) =>
+          m.draft?.id === draftId
+            ? { ...m, draftStatus: 'APPROVED', draft: { ...m.draft, state: 'APPROVED', status: 'APPROVED' } }
+            : m,
+        ),
+        { ...reply, draftStatus: 'NOT_APPLICABLE', draft: null },
+      ],
+    }));
+    setSuccess('Reply approved. The customer can now see it.');
+
+    // Sync with the server in the background.
+    load({ silent: true });
     onChanged?.();
   }
 
